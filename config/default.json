@@ -1,5 +1,5 @@
 {
     "appSecret": "[App Dashboard > Dashboard > click the Show button in the App Secret field]",
-    "pageAccessToken": "[App Dashboard > Messenger > Settings > Token Generation > select your page > copy the token that appears]",
-    "validationToken": "[App Dashboard > Webhooks > Edit Subscription > copy whatever random value you decide to use in the Verify Token field]"
+    "pageAccessToken": "EAASKAJHhVk8BAHFCJGquLbIoJZCCHGlu89H7cwYXL7WEwuaH9RKakSBCqbbia2PEzm7ZA57NPcMeiTa0XCGat0F6ZAzVweAB4qO4NZCnLIITXAOJtHTDcgUBs4wn1yR8Mr1mMWkmkvOHI4RUsFmASWS83fPHJU5RV2yfJ6z4ZCAZDZD",
+    "validationToken": "TheyShotAMovieOnceInMyHometown"
 }
