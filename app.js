@@ -12,6 +12,7 @@ const
 var app = express();
 app.set('port', 5000);
 app.set('view engine', 'ejs');
+app.use(bodyParser.json({ verify: verifyRequestSignature }));
 app.use(express.static('public'));
 
 /*
@@ -40,6 +41,38 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN)) {
   console.error("Missing config values");
   process.exit(1);
 }
+
+/*
+ * Verify that the request came from Facebook. You should expect a hash of 
+ * the App Secret from your App Dashboard to be present in the x-hub-signature 
+ * header field.
+ *
+ * https://developers.facebook.com/docs/graph-api/webhooks#setup
+ *
+ */
+function verifyRequestSignature(req, res, buf) {
+  var signature = req.headers["x-hub-signature"];
+
+  if (!signature) {
+    // In DEV, log an error. In PROD, throw an error.
+    console.error("Couldn't validate the signature.");
+  } else {
+    var elements = signature.split('=');
+    var method = elements[0];
+    var signatureHash = elements[1];
+
+    var expectedHash = crypto.createHmac('sha1', APP_SECRET)
+                        .update(buf)
+                        .digest('hex');
+
+    console.log("received  %s", signatureHash);
+    console.log("exepected %s", expectedHash);
+    if (signatureHash != expectedHash) {
+      throw new Error("Couldn't validate the request signature.");
+    }
+  }
+}
+
 
 /*
  * Verify that your validation token matches the one that is sent 
