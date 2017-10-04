@@ -117,6 +117,9 @@ app.post('/webhook', function (req, res) {
   
           if (messagingEvent.message) {
             processMessageFromPage(messagingEvent);
+          } else if (messagingEvent.postback) {
+            // user replied by tapping a postback button
+            processPostbackMessage(messagingEvent);
           } else {
             console.log("[app.post] not prepared to handle this message type.");
           }
@@ -127,6 +130,29 @@ app.post('/webhook', function (req, res) {
 
   }
 });
+
+/*
+ * called when a postback button is tapped 
+ * ie. buttons in structured messages and the Get Started button 
+ *
+ * https://developers.facebook.com/docs/messenger-platform/webhook-reference/postback-received
+ * 
+ */
+function processPostbackMessage(event) {
+  var senderID = event.sender.id;
+  var recipientID = event.recipient.id;
+  var timeOfPostback = event.timestamp;
+
+  // the developer-defined field you set when you create postback buttons
+  var payload = event.postback.payload;
+
+  console.log("[processPostbackMessage] from user (%d) " +
+    "on page (%d) " +
+    "with payload ('%s') " + 
+    "at (%d)", 
+    senderID, recipientID, payload, timeOfPostback);
+
+}
 
 /*
  * Called when a message is sent to your page. 
