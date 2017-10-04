@@ -104,8 +104,10 @@ app.post('/webhook', function (req, res) {
   var data = req.body;
   console.log(JSON.stringify(data));
   
-  // send back a 200 within 20 seconds to avoid timeouts
-  res.sendStatus(200);
+  if (data.object == 'page') {
+    // send back a 200 within 20 seconds to avoid timeouts
+    res.sendStatus(200);
+  }
 });
 
 
