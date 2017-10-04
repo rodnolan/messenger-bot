@@ -147,8 +147,75 @@ function processMessageFromPage(event) {
   var messageText = message.text;
   if (messageText) {
     console.log("[processMessageFromPage]: %s", messageText); 
+    sendTextMessage(senderID, messageText);
 
   }
+}
+
+/*
+ * Send a text message using the Send API.
+ *
+ */
+function sendTextMessage(recipientId, messageText) {
+  var messageData = {
+    recipient: {
+      id: recipientId
+    },
+    message: {
+      text: messageText // utf-8, 640-character max
+    }
+  };
+  console.log("[sendTextMessage] %s", JSON.stringify(messageData));
+  callSendAPI(messageData);
+}
+
+/*
+ * Call the Send API. If the call succeeds, the 
+ * message id is returned in the response.
+ *
+ */
+function callSendAPI(messageData) {
+  request({
+    uri: 'https://graph.facebook.com/v2.6/me/messages',
+    qs: { access_token: PAGE_ACCESS_TOKEN },
+    method: 'POST',
+    json: messageData
+  }, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+        console.log("[callSendAPI] success!");
+    } else {
+      console.error("[callSendAPI] Send API call failed");
+    }
+  });  
+}
+
+
+/*
+ * Call the Send API. If the call succeeds, the message id is returned in the response.
+ */
+function callSendAPI(messageData) {
+  request({
+    uri: 'https://graph.facebook.com/v2.6/me/messages',
+    qs: { access_token: PAGE_ACCESS_TOKEN },
+    method: 'POST',
+    json: messageData
+
+  }, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var recipientId = body.recipient_id;
+      var messageId = body.message_id;
+
+      if (messageId) {
+        console.log("[callSendAPI] message id %s sent to recipient %s", 
+          messageId, recipientId);
+      } else {
+        console.log("[callSendAPI] called Send API for recipient %s", 
+          recipientId);
+      }
+    } else {
+      console.error("[callSendAPI] Send API call failed", response.statusCode, response.statusMessage, body.error);
+    }
+  });  
 }
 
 /*
