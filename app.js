@@ -107,9 +107,48 @@ app.post('/webhook', function (req, res) {
   if (data.object == 'page') {
     // send back a 200 within 20 seconds to avoid timeouts
     res.sendStatus(200);
+    // entries from multiple pages may be batched in one request
+    data.entry.forEach(function(pageEntry) {
+      
+        // iterate over each messaging event for this page
+        pageEntry.messaging.forEach(function(messagingEvent) {
+          let propertyNames = Object.keys(messagingEvent);
+          console.log("[app.post] Webhook event props: ", propertyNames.join());
+  
+          if (messagingEvent.message) {
+            processMessageFromPage(messagingEvent);
+          } else {
+            console.log("[app.post] not prepared to handle this message type.");
+          }
+  
+        });
+      });
+  
+
   }
 });
 
+/*
+ * Called when a message is sent to your page. 
+ * 
+ */
+function processMessageFromPage(event) {
+  var senderID = event.sender.id;
+  var pageID = event.recipient.id;
+  var timeOfMessage = event.timestamp;
+  var message = event.message;
+
+  console.log("[processMessageFromPage] user (%d) page (%d) timestamp (%d) and message (%s)", 
+    senderID, pageID, timeOfMessage, JSON.stringify(message));
+
+  // the 'message' object format can vary depending on the kind of message that was received.
+  // See: https://developers.facebook.com/docs/messenger-platform/webhook-reference/message-received
+  var messageText = message.text;
+  if (messageText) {
+    console.log("[processMessageFromPage]: %s", messageText); 
+
+  }
+}
 
 /*
  * Start your server
