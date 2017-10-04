@@ -91,6 +91,24 @@ app.get('/webhook', function(req, res) {
   }  
 });
 
+
+/*
+ * All callbacks from Messenger are POST-ed. All events from all subscription 
+ * types are sent to the same webhook. 
+ * 
+ * Subscribe your app to your page to receive callbacks for your page. 
+ * https://developers.facebook.com/docs/messenger-platform/product-overview/setup#subscribe_app
+ */
+app.post('/webhook', function (req, res) {
+  console.log("message received!");
+  var data = req.body;
+  console.log(JSON.stringify(data));
+  
+  // send back a 200 within 20 seconds to avoid timeouts
+  res.sendStatus(200);
+});
+
+
 /*
  * Start your server
  */
