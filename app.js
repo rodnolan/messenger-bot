@@ -153,8 +153,7 @@ function processPostbackMessage(event) {
     "at (%d)", 
     senderID, recipientID, payload, timeOfPostback);
 
-  //respondToHelpRequestWithTemplates(senderID, payload);
-  respondToHelpRequestWithImageAttachments(senderID, payload);
+  respondToHelpRequest(senderID, payload);
 }
 
 /*
@@ -249,14 +248,27 @@ function handleQuickReplyResponse(event) {
   console.log("[handleQuickReplyResponse] Handling quick reply response (%s) from sender (%d) to page (%d) with message (%s)", 
     quickReplyPayload, senderID, pageID, JSON.stringify(message));
 
-  // respond to the sender's help request by presenting a carousel-style 
-  // set of screenshots of the application in action 
-  // each response includes all the content for the requested feature
-  //respondToHelpRequestWithTemplates(senderID, quickReplyPayload);
-
-  // respond to the help request by presenting one image at a time
-  respondToHelpRequestWithImageAttachments(senderID, payload);
+  respondToHelpRequest(senderID, quickReplyPayload);
 }
+
+/*
+ * added this function in a refactoring exercise aimed at making it easier 
+ * to switch between the two help response implementations 
+ */
+function respondToHelpRequest(senderID, payload) {
+  var useCarousel = true;
+  
+  if (useCarousel) {
+    // respond to the sender's help request by presenting a carousel-style 
+    // set of screenshots of the application in action 
+    // each response includes all the content for the requested feature
+    respondToHelpRequestWithTemplates(senderID, payload);
+  } else {
+    // respond to the help request by presenting one image at a time
+    respondToHelpRequestWithImageAttachments(senderID, payload);
+  }
+}
+
 
 /*
  * This response uses templateElements to present the user with a carousel
