@@ -112,8 +112,7 @@ app.post('/webhook', function (req, res) {
       
         // iterate over each messaging event for this page
         pageEntry.messaging.forEach(function(messagingEvent) {
-          let propertyNames = [];
-          for (var prop in messagingEvent) { propertyNames.push(prop) }
+          let propertyNames = Object.keys(messagingEvent);
           console.log("[app.post] Webhook event props: ", propertyNames.join());
   
           if (messagingEvent.message) {
