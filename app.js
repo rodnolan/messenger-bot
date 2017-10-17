@@ -243,30 +243,34 @@ function handleQuickReplyResponse(event) {
   var senderID = event.sender.id;
   var pageID = event.recipient.id;
   var message = event.message;
-  var quickReplyPayload = message.quick_reply.payload;
+  var payload = message.quick_reply.payload;
   
   console.log("[handleQuickReplyResponse] Handling quick reply response (%s) from sender (%d) to page (%d) with message (%s)", 
-    quickReplyPayload, senderID, pageID, JSON.stringify(message));
+    payload, senderID, pageID, JSON.stringify(message));
 
-  respondToHelpRequest(senderID, quickReplyPayload);
+  respondToHelpRequest(senderID, payload);
+
 }
 
 /*
- * added this function in a refactoring exercise aimed at making it easier 
- * to switch between the two help response implementations 
+ * simplify switching between the two help response implementations 
  */
 function respondToHelpRequest(senderID, payload) {
-  var useCarousel = true;
+  // set useGenericTemplates to false to send image attachments instead of generic templates
+  var useGenericTemplates = true; 
+  var messageData = {};
   
-  if (useCarousel) {
+  if (useGenericTemplates) {
     // respond to the sender's help request by presenting a carousel-style 
     // set of screenshots of the application in action 
     // each response includes all the content for the requested feature
-    respondToHelpRequestWithTemplates(senderID, payload);
+    messageData = getGenericTemplates(senderID, payload);
   } else {
     // respond to the help request by presenting one image at a time
-    respondToHelpRequestWithImageAttachments(senderID, payload);
+    messageData = getImageAttachments(senderID, payload);
   }
+
+  callSendAPI(messageData);  
 }
 
 
@@ -276,8 +280,8 @@ function respondToHelpRequest(senderID, payload) {
  * left and right to see it
  *
  */
-function respondToHelpRequestWithTemplates(recipientId, requestForHelpOnFeature) {
-  console.log("[respondToHelpRequestWithTemplates] handling help request for %s",
+function getGenericTemplates(recipientId, requestForHelpOnFeature) {
+  console.log("[getGenericTemplates] handling help request for %s",
     requestForHelpOnFeature);
   var templateElements = [];
   var sectionButtons = [];
@@ -434,7 +438,7 @@ function respondToHelpRequestWithTemplates(recipientId, requestForHelpOnFeature)
     }
   };
 
-  callSendAPI(messageData);
+  return messageData;
 }
 
 /*
@@ -444,7 +448,7 @@ function respondToHelpRequestWithTemplates(recipientId, requestForHelpOnFeature)
  * be consumed in a strict linear order.
  *
  */
-function respondToHelpRequestWithImageAttachments(recipientId, helpRequestType) {
+function getImageAttachments(recipientId, helpRequestType) {
   var textToSend = '';
   var quickReplies = [
     {
@@ -630,7 +634,7 @@ function respondToHelpRequestWithImageAttachments(recipientId, helpRequestType) 
     delete messageData.message.text;
   }
 
-  callSendAPI(messageData);
+  return messageData;
 }
 
 
@@ -655,25 +659,6 @@ function sendTextMessage(recipientId, messageText) {
  * Call the Send API. If the call succeeds, the 
  * message id is returned in the response.
  *
- */
-function callSendAPI(messageData) {
-  request({
-    uri: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: { access_token: PAGE_ACCESS_TOKEN },
-    method: 'POST',
-    json: messageData
-  }, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-        console.log("[callSendAPI] success!");
-    } else {
-      console.error("[callSendAPI] Send API call failed");
-    }
-  });  
-}
-
-
-/*
- * Call the Send API. If the call succeeds, the message id is returned in the response.
  */
 function callSendAPI(messageData) {
   request({
